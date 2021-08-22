@@ -11,26 +11,23 @@ data class Note(
     val favorite: Boolean = false,
 )
 
-@Database(entities = [Note::class], version = 1)
-abstract class NoteDatabase: RoomDatabase() {
+@Database(entities = [Note::class], version = 2)
+abstract class NoteDatabase : RoomDatabase() {
     companion object {
         private var Instance: NoteDatabase? = null
         fun getInstance(context: Context): NoteDatabase {
-            synchronized(this) {
-                var instance = Instance
-
-                if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context,
-                        NoteDatabase::class.java,
-                        "notes_database"
-                    )
-                        .fallbackToDestructiveMigration()
-                        .build()
-                }
-                return instance
+            if (Instance == null) {
+                Instance = Room.databaseBuilder(
+                    context,
+                    NoteDatabase::class.java,
+                    "notes_database"
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
             }
+            return Instance ?: throw Exception("Database is broken")
         }
     }
+
     abstract fun notesDao(): NoteDao
 }
