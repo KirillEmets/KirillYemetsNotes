@@ -7,7 +7,7 @@ import androidx.room.*
 data class Note(
     @PrimaryKey(autoGenerate = true) val noteId: Long = 0,
     val text: String = "",
-    val date: Long = 0, // TODO add time
+    val dateTime: Long = 0,
     val favorite: Boolean = false,
 )
 

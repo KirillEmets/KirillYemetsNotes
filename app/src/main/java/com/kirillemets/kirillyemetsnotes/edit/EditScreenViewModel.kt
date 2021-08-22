@@ -35,7 +35,7 @@ class EditScreenViewModel(noteId: Long, database: NoteDatabase): ViewModel() {
     private fun saveChanges() {
         viewModelScope.launch(Dispatchers.IO) {
             val millis = DateTime().millis
-            val newNote = note.copy(text = _text.value, date = millis)
+            val newNote = note.copy(text = _text.value, dateTime = millis)
             notesDao.update(newNote)
         }
     }

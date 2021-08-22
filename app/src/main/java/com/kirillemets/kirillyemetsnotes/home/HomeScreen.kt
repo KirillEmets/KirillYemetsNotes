@@ -54,7 +54,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
                     var id: Long
                     val millis = DateTime().millis
                     withContext(Dispatchers.IO) {
-                        id = database.notesDao().insert(Note(date = millis))
+                        id = database.notesDao().insert(Note(dateTime = millis))
                     }
                     navController.navigate("home/edit/$id")
                 }
@@ -88,7 +88,7 @@ fun NoteCardList(notes: List<Note>, today: LocalDateTime, onClick: (Long) -> Uni
         items(notes.size) { pos ->
             notes[pos].let { note ->
                 NoteCard(
-                    note.text, dateTimeToString(LocalDateTime(note.date), today)
+                    note.text, dateTimeToString(LocalDateTime(note.dateTime), today)
                 ) {
                     onClick(note.noteId)
                 }
