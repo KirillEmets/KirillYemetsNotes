@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute: String = navBackStackEntry?.destination?.route ?: "default"
 
                 ModalDrawer(
-                    gesturesEnabled = false,
+                    gesturesEnabled = drawerState.isOpen,
                     drawerState = drawerState,
                     drawerContent = {
                         Column {
