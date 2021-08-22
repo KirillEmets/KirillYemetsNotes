@@ -5,11 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,20 +31,20 @@ fun EditScreen(navController: NavHostController, noteId: Long) {
     val text by editScreenViewModel.text
     val scrollableState = rememberScrollableState(consumeScrollDelta = { it })
 
-    // TODO Add confirmation with BackHandler {}
+    BackHandler {
+        onNavigateUp(navController, editScreenViewModel)
+    }
 
     Scaffold(
         Modifier.scrollable(orientation = Orientation.Vertical, state = scrollableState),
         topBar = {
             MyTopAppBar(params = ScreenParameters.HomeEdit) {
-                navController.popBackStack()
-                // TODO Add confirmation
+                onNavigateUp(navController, editScreenViewModel)
             }
         },
         floatingActionButton = {
             MyFloatingActionButton(icon = Icons.Filled.Done, description = "Save note") {
-                editScreenViewModel.saveChanges()
-                navController.popBackStack()
+                onNavigateUp(navController, editScreenViewModel, true)
             }
         }) {
 
@@ -57,6 +55,9 @@ fun EditScreen(navController: NavHostController, noteId: Long) {
                 .background(color = MaterialTheme.colors.background)
         )
     }
+}
 
-
+fun onNavigateUp(navController: NavHostController, viewModel: EditScreenViewModel, saveChanges: Boolean = false) {
+    viewModel.onNavigateUp(saveChanges)
+    navController.popBackStack()
 }

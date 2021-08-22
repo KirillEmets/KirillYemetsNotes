@@ -31,15 +31,38 @@ class EditScreenViewModel(noteId: Long, database: NoteDatabase): ViewModel() {
         _text.value = newText
     }
 
-    fun saveChanges() {
+    private fun saveChanges() {
         viewModelScope.launch(Dispatchers.IO) {
             val newNote = note.copy(text = _text.value)
             notesDao.update(newNote)
         }
     }
+
+    fun onNavigateUp(saveChanges: Boolean) {
+        if(saveChanges) {
+            if(text.value.isBlank()) {
+                deleteCurrentNote()
+                return
+            }
+            saveChanges()
+            return
+        }
+
+        if(note.text.isBlank()) {
+            deleteCurrentNote()
+            return
+        }
+    }
+
+    private fun deleteCurrentNote() {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesDao.delete(note)
+        }
+    }
 }
 
-class EditScreenViewModelFactory(private val noteId: Long, val database: NoteDatabase): ViewModelProvider.Factory {
+@Suppress("UNCHECKED_CAST")
+class EditScreenViewModelFactory(private val noteId: Long, private val database: NoteDatabase): ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(EditScreenViewModel::class.java)) {
             return EditScreenViewModel(noteId = noteId, database = database) as T
