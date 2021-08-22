@@ -12,11 +12,11 @@ interface NoteDao {
     suspend fun get(noteId: Long): Note
 
     @Insert
-    suspend fun insert(card: Note): Long
+    suspend fun insert(note: Note): Long
 
     @Update
-    suspend fun update(card: Note)
+    suspend fun update(note: Note)
 
     @Delete
-    suspend fun delete(card: Note)
+    suspend fun delete(note: Note)
 }
