@@ -18,11 +18,14 @@ import androidx.navigation.NavHostController
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
 import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
 import com.kirillemets.kirillyemetsnotes.database.Note
+import com.kirillemets.kirillyemetsnotes.dateTimeToString
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
+import org.joda.time.LocalDateTime
 
 
 @Composable
@@ -30,6 +33,8 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val database = remember { NoteDatabase.getInstance(context) }
+
+    val today = remember { LocalDateTime() }
 
     val viewModel: HomeScreenViewModel =
         viewModel(factory = HomeScreenViewModelFactory(database = database))
@@ -47,8 +52,9 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
             AddNoteFloatingButton {
                 scope.launch {
                     var id: Long
+                    val millis = DateTime().millis
                     withContext(Dispatchers.IO) {
-                        id = database.notesDao().insert(Note())
+                        id = database.notesDao().insert(Note(date = millis))
                     }
                     navController.navigate("home/edit/$id")
                 }
@@ -56,8 +62,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
         }) {
 
         Column {
-            Text(text = "Your notes:", Modifier.padding(16.dp))
-            NoteCardList(notes = notes) { id ->
+            NoteCardList(notes = notes, today) { id ->
                 viewModel.onNoteClick(id)
                 navController.navigate("home/edit/$id")
             }
@@ -75,13 +80,19 @@ fun AddNoteFloatingButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun NoteCardList(notes: List<Note>, onClick: (Long) -> Unit) {
+fun NoteCardList(notes: List<Note>, today: LocalDateTime, onClick: (Long) -> Unit) {
     LazyColumn(Modifier.padding(8.dp)) {
+        item {
+            Text(text = "Your notes:", Modifier.padding(16.dp))
+        }
         items(notes.size) { pos ->
-            NoteCard(
-                notes[pos].text, "today"
-            ) {
-                onClick(notes[pos].noteId)
+            notes[pos].let { note ->
+                NoteCard(
+                    note.text, dateTimeToString(LocalDateTime(note.date), today)
+                ) {
+                    onClick(note.noteId)
+                }
+
             }
         }
     }

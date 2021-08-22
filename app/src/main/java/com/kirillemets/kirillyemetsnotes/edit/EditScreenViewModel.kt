@@ -11,6 +11,7 @@ import com.kirillemets.kirillyemetsnotes.database.Note
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
 
 class EditScreenViewModel(noteId: Long, database: NoteDatabase): ViewModel() {
     private val notesDao = database.notesDao()
@@ -33,7 +34,8 @@ class EditScreenViewModel(noteId: Long, database: NoteDatabase): ViewModel() {
 
     private fun saveChanges() {
         viewModelScope.launch(Dispatchers.IO) {
-            val newNote = note.copy(text = _text.value)
+            val millis = DateTime().millis
+            val newNote = note.copy(text = _text.value, date = millis)
             notesDao.update(newNote)
         }
     }
