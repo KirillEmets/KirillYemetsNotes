@@ -21,9 +21,14 @@ class HomeScreenViewModel(database: NoteDatabase) : ViewModel() {
     }
 
     private fun deleteNote(note: Note) {
-//        notesState.remove(note)
         viewModelScope.launch(Dispatchers.IO) {
             notesDao.delete(note)
+        }
+    }
+
+    fun restoreNote(note: Note) {
+        viewModelScope.launch(Dispatchers.IO) {
+            notesDao.insert(note)
         }
     }
 }

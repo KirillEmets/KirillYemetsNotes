@@ -43,6 +43,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
     val homeScreenViewModel: HomeScreenViewModel =
         viewModel(factory = HomeScreenViewModelFactory(database = database))
     val notes by homeScreenViewModel.allNotes.collectAsState(initial = listOf())
+    val scaffoldState = rememberScaffoldState()
 
     Scaffold(
         topBar = {
@@ -63,7 +64,8 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
                     navController.navigate("home/edit/$id")
                 }
             }
-        }) {
+        },
+        scaffoldState = scaffoldState) {
 
         Column {
             NoteCardList(
@@ -75,6 +77,16 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
                 },
                 onSwipe = { note ->
                     homeScreenViewModel.onNoteSwiped(note)
+                    scope.launch {
+                        val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
+                            message = "Note deleted",
+                            actionLabel = "Undo")
+
+                        when(snackbarResult) {
+                            SnackbarResult.Dismissed -> Unit
+                            SnackbarResult.ActionPerformed -> homeScreenViewModel.restoreNote(note)
+                        }
+                    }
                 })
         }
     }
@@ -103,9 +115,8 @@ fun NoteCardList(
         items(notes.size) { pos ->
             notes[pos].let { note ->
                 NoteCard(
-                    noteText = note.text,
-                    date = dateTimeToString(LocalDateTime(note.dateTime), today),
-                    noteId = note.noteId,
+                    dateText = dateTimeToString(LocalDateTime(note.dateTime), today),
+                    note = note,
                     onClick = {
                         onClick(note.noteId)
                     },
@@ -119,9 +130,8 @@ fun NoteCardList(
 
 @Composable
 fun NoteCard(
-    noteText: String,
-    date: String,
-    noteId: Long,
+    note: Note,
+    dateText: String,
     onSwipe: () -> Unit,
     onClick: (() -> Unit),
 ) {
@@ -130,19 +140,20 @@ fun NoteCard(
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .mySwipeable(noteId = noteId, onSwipe = onSwipe),
+            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe),
         shape = RoundedCornerShape(4.dp), elevation = 4.dp
     ) {
         Column {
             Text(
-                text = date,
+                text = dateText,
                 fontSize = 14.sp,
                 color = Color.Gray,
                 modifier = Modifier.padding(8.dp)
             )
             Text(
-                text = noteText,
+                text = note.text,
                 fontSize = 16.sp,
+                maxLines = 5,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
