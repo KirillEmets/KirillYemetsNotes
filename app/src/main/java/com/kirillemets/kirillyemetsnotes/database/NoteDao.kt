@@ -11,6 +11,9 @@ interface NoteDao {
     @Query("SELECT * FROM note WHERE noteId = :noteId")
     suspend fun get(noteId: Long): Note
 
+    @Query("DELETE FROM note WHERE noteId = :noteId")
+    fun deleteById(noteId: Long)
+
     @Insert
     suspend fun insert(note: Note): Long
 
