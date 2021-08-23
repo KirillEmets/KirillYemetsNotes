@@ -1,6 +1,10 @@
 package com.kirillemets.kirillyemetsnotes.home
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,11 +26,10 @@ import com.kirillemets.kirillyemetsnotes.database.Note
 import com.kirillemets.kirillyemetsnotes.dateTimeToString
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.joda.time.DateTime
 import org.joda.time.LocalDateTime
+import kotlin.math.max
 
 
 @Composable
@@ -36,9 +40,9 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
 
     val today = remember { LocalDateTime() }
 
-    val viewModel: HomeScreenViewModel =
+    val homeScreenViewModel: HomeScreenViewModel =
         viewModel(factory = HomeScreenViewModelFactory(database = database))
-    val notes by viewModel.allNotes.collectAsState(initial = listOf())
+    val notes by homeScreenViewModel.allNotes.collectAsState(initial = listOf())
 
     Scaffold(
         topBar = {
@@ -62,10 +66,16 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
         }) {
 
         Column {
-            NoteCardList(notes = notes, today) { id ->
-                viewModel.onNoteClick(id)
-                navController.navigate("home/edit/$id")
-            }
+            NoteCardList(
+                notes = notes,
+                today,
+                onClick = { noteId ->
+                    homeScreenViewModel.onNoteClick()
+                    navController.navigate("home/edit/$noteId")
+                },
+                onSwipe = { note ->
+                    homeScreenViewModel.onNoteSwiped(note)
+                })
         }
     }
 }
@@ -80,7 +90,12 @@ fun AddNoteFloatingButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun NoteCardList(notes: List<Note>, today: LocalDateTime, onClick: (Long) -> Unit) {
+fun NoteCardList(
+    notes: List<Note>,
+    today: LocalDateTime,
+    onClick: (Long) -> Unit,
+    onSwipe: (Note) -> Unit
+) {
     LazyColumn(Modifier.padding(8.dp)) {
         item {
             Text(text = "Your notes:", Modifier.padding(16.dp))
@@ -88,39 +103,83 @@ fun NoteCardList(notes: List<Note>, today: LocalDateTime, onClick: (Long) -> Uni
         items(notes.size) { pos ->
             notes[pos].let { note ->
                 NoteCard(
-                    note.text, dateTimeToString(LocalDateTime(note.dateTime), today)
-                ) {
-                    onClick(note.noteId)
-                }
-
+                    noteText = note.text,
+                    date = dateTimeToString(LocalDateTime(note.dateTime), today),
+                    noteId = note.noteId,
+                    onClick = {
+                        onClick(note.noteId)
+                    },
+                    onSwipe = {
+                        onSwipe(note)
+                    })
             }
         }
     }
 }
 
 @Composable
-fun NoteCard(noteText: String, date: String, onClick: (() -> Unit)) = Card(
-    Modifier
-        .padding(vertical = 8.dp, horizontal = 8.dp)
-        .fillMaxWidth()
-        .clickable {
-            onClick.invoke()
-        },
-    shape = RoundedCornerShape(4.dp), elevation = 4.dp
+fun NoteCard(
+    noteText: String,
+    date: String,
+    noteId: Long,
+    onSwipe: () -> Unit,
+    onClick: (() -> Unit),
 ) {
-    Column {
-        Text(
-            text = date,
-            fontSize = 14.sp,
-            color = Color.Gray,
-            modifier = Modifier.padding(8.dp)
-        )
-        Text(
-            text = noteText,
-            fontSize = 16.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
+    Card(
+        Modifier
+            .padding(vertical = 8.dp, horizontal = 8.dp)
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .mySwipeable(noteId = noteId, onSwipe = onSwipe),
+        shape = RoundedCornerShape(4.dp), elevation = 4.dp
+    ) {
+        Column {
+            Text(
+                text = date,
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(8.dp)
+            )
+            Text(
+                text = noteText,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        }
     }
+}
+
+
+@SuppressLint("UnnecessaryComposedModifier")
+fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit): Modifier = composed {
+    val offsetX = remember(noteId) { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+
+    val draggableState = rememberDraggableState(onDelta = {
+        scope.launch {
+            offsetX.snapTo(max(offsetX.value + it, 0f))
+        }
+    })
+    val width = LocalContext.current.resources.displayMetrics.widthPixels
+
+
+    Modifier
+        .absoluteOffset(x = offsetX.value.dp)
+        .draggable(draggableState, orientation = Orientation.Horizontal, onDragStopped = {
+            Log.i("DRAG", "off = ${offsetX.value} velo = $it")
+            if (offsetX.value > width * 0.6f * 0.5f && it < 0) {
+                onSwipe()
+                launch {
+                    offsetX.animateTo(width.toFloat())
+                }
+            }
+            launch {
+                if (!offsetX.isRunning)
+                    offsetX.animateTo(0f)
+            }
+        }, onDragStarted = {
+            offsetX.snapTo(max(offsetX.value + it.x, 0f))
+        })
 }
