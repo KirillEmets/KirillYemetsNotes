@@ -5,8 +5,8 @@ Pet project for making notes created with **Jetpack Compose**, **Room** and **Fi
 ### Existing features: 
 - [x] Add notes
 - [x] Save notes
+- [x] Delete notes with swipe
 
 ### Planned:
-- [ ] Delete notes with swipe
 - [ ] Mark favorite notes
 - [ ] Synchronize with cloud (using firebase)
