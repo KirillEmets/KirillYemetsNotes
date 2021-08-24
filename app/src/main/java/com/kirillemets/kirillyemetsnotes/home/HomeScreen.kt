@@ -1,10 +1,6 @@
 package com.kirillemets.kirillyemetsnotes.home
 
-import android.annotation.SuppressLint
-import android.util.Log
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -26,10 +21,10 @@ import com.kirillemets.kirillyemetsnotes.database.Note
 import com.kirillemets.kirillyemetsnotes.dateTimeToString
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
+import com.kirillemets.kirillyemetsnotes.ui.components.mySwipeable
 import kotlinx.coroutines.*
 import org.joda.time.DateTime
 import org.joda.time.LocalDateTime
-import kotlin.math.max
 
 
 @Composable
@@ -160,37 +155,4 @@ fun NoteCard(
             )
         }
     }
-}
-
-
-@SuppressLint("UnnecessaryComposedModifier")
-fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit): Modifier = composed {
-    val offsetX = remember(noteId) { Animatable(0f) }
-    val scope = rememberCoroutineScope()
-
-    val draggableState = rememberDraggableState(onDelta = {
-        scope.launch {
-            offsetX.snapTo(max(offsetX.value + it, 0f))
-        }
-    })
-    val width = LocalContext.current.resources.displayMetrics.widthPixels
-
-
-    Modifier
-        .absoluteOffset(x = offsetX.value.dp)
-        .draggable(draggableState, orientation = Orientation.Horizontal, onDragStopped = {
-            Log.i("DRAG", "off = ${offsetX.value} velo = $it")
-            if (offsetX.value > width * 0.6f * 0.5f && it < 0) {
-                onSwipe()
-                launch {
-                    offsetX.animateTo(width.toFloat())
-                }
-            }
-            launch {
-                if (!offsetX.isRunning)
-                    offsetX.animateTo(0f)
-            }
-        }, onDragStarted = {
-            offsetX.snapTo(max(offsetX.value + it.x, 0f))
-        })
 }
