@@ -42,19 +42,6 @@ object Routes {
     fun editNote(id: Int) = "home/edit/{$id}"
 }
 
-enum class NavButtonClickType() {
-    OpenDrawer(),
-    NavigateUp()
-}
-
-val screenParametersMap = mapOf(
-    "default" to ScreenParameters.Default,
-    "home" to ScreenParameters.Home,
-    "home/edit" to ScreenParameters.HomeEdit,
-    "settings" to ScreenParameters.Settings,
-    "account" to ScreenParameters.Account,
-)
-
 class User(val name: String)
 
 @Composable
