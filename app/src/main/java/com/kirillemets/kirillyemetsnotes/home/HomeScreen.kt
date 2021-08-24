@@ -130,12 +130,13 @@ fun NoteCard(
     onSwipe: () -> Unit,
     onClick: (() -> Unit),
 ) {
+    var clickable by remember { mutableStateOf(true) }
     Card(
         Modifier
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe),
+            .clickable(onClick = onClick, enabled = clickable)
+            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe, setClickable = {clickable = it}),
         shape = RoundedCornerShape(4.dp), elevation = 4.dp
     ) {
         Column {
