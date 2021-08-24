@@ -16,34 +16,6 @@ import androidx.compose.ui.unit.dp
 data class DrawerMenuItem(val text: String, val icon: ImageVector, val route: String)
 
 @Composable
-fun MyDrawer(
-    drawerState: DrawerState,
-    onRouteClick: (String) -> Unit,
-    items: List<DrawerMenuItem>,
-    defaultItemRoute: String,
-    content: @Composable () -> Unit,
-) {
-    var lastChoice by remember { mutableStateOf(defaultItemRoute) }
-
-    ModalDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            Column {
-                items.forEach {
-                    DrawerItem(
-                        text = it.text,
-                        icon = it.icon,
-                        isActive = lastChoice == it.route
-                    ) {
-                        lastChoice = it.route
-                        onRouteClick(it.route)
-                    }
-                }
-            }
-        }, content = content)
-}
-
-@Composable
 fun DrawerItem(text: String, icon: ImageVector, isActive: Boolean, onClick: () -> Unit) {
     Row(
         Modifier
