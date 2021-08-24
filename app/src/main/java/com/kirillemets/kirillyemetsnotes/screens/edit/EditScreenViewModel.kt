@@ -1,4 +1,4 @@
-package com.kirillemets.kirillyemetsnotes.edit
+package com.kirillemets.kirillyemetsnotes.screens.edit
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State

@@ -1,4 +1,4 @@
-package com.kirillemets.kirillyemetsnotes.home
+package com.kirillemets.kirillyemetsnotes.screens.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

@@ -1,4 +1,4 @@
-package com.kirillemets.kirillyemetsnotes.edit
+package com.kirillemets.kirillyemetsnotes.screens.edit
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background

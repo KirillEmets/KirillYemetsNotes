@@ -20,8 +20,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.kirillemets.kirillyemetsnotes.edit.EditScreen
-import com.kirillemets.kirillyemetsnotes.home.HomeScreen
+import com.kirillemets.kirillyemetsnotes.screens.edit.EditScreen
+import com.kirillemets.kirillyemetsnotes.screens.home.HomeScreen
 import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
 import com.kirillemets.kirillyemetsnotes.ui.components.*
 import com.kirillemets.kirillyemetsnotes.ui.theme.KirillYemetsNotesTheme
