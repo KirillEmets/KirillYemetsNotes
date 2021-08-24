@@ -39,7 +39,7 @@ object Routes {
     const val Settings = "settings"
     const val Account = "account"
     const val EditNote = "home/edit/{noteId}"
-    fun editNote(id: Int) = "home/edit/{$id}"
+    fun editNote(id: Long) = "home/edit/$id"
 }
 
 class User(val name: String)
@@ -144,7 +144,7 @@ fun NavHostController.navigateCloseDrawer(
     scope: CoroutineScope
 ) {
     navigate(route) {
-        popUpTo("home") {}
+        popUpTo(Routes.Home) {}
     }
     scope.launch {
         drawerState.close()
@@ -165,12 +165,12 @@ fun MyNavHost(navController: NavHostController, drawerState: DrawerState) {
             HomeScreen(navController, drawerState)
         }
         composable(
-            "home/edit/{noteId}",
+            Routes.EditNote,
             arguments = listOf(navArgument("noteId") { type = NavType.LongType })
         ) {
             EditScreen(navController, it.arguments?.getLong("noteId")!!)
         }
-        composable("settings") { Text("Settings") }
-        composable("account") { Text("Account") }
+        composable(Routes.Settings) { Text("Settings") }
+        composable(Routes.Account) { Text("Account") }
     }
 }

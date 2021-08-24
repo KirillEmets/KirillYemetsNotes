@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.kirillemets.kirillyemetsnotes.Routes
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
 import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
 import com.kirillemets.kirillyemetsnotes.database.Note
@@ -56,7 +57,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
                     withContext(Dispatchers.IO) {
                         id = database.notesDao().insert(Note(dateTime = millis))
                     }
-                    navController.navigate("home/edit/$id")
+                    navController.navigate(Routes.editNote(id))
                 }
             }
         },
@@ -68,7 +69,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
                 today,
                 onClick = { noteId ->
                     homeScreenViewModel.onNoteClick()
-                    navController.navigate("home/edit/$noteId")
+                    navController.navigate(Routes.editNote(noteId))
                 },
                 onSwipe = { note ->
                     homeScreenViewModel.onNoteSwiped(note)
