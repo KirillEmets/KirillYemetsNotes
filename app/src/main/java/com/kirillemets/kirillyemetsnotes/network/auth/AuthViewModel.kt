@@ -27,14 +27,17 @@ class AuthViewModel : ViewModel() {
     private val auth = Firebase.auth
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            firebaseUser.value = auth.currentUser
-        }
+        auth.addAuthStateListener { firebaseUser.value = it.currentUser }
     }
 
     fun onSignIn(result: FirebaseAuthUIAuthenticationResult) {
-        if (result.resultCode == RESULT_OK) {
-            firebaseUser.value = auth.currentUser
+        // Does nothing
+        result.resultCode
+    }
+
+    fun signOut() {
+        viewModelScope.launch(Dispatchers.IO) {
+            auth.signOut()
         }
     }
 }
