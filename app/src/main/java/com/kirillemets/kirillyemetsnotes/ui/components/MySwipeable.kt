@@ -1,7 +1,6 @@
 package com.kirillemets.kirillyemetsnotes.ui.components
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -14,10 +13,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import kotlin.math.max
 
 @SuppressLint("UnnecessaryComposedModifier")
-fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit): Modifier = composed {
+fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit, setClickable: (Boolean) -> Unit): Modifier = composed {
     val offsetXpx = remember(noteId) { Animatable(0f) }
     val scope = rememberCoroutineScope()
 
@@ -27,17 +27,16 @@ fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit): Modifier = composed
         }
     })
     val metrics = LocalContext.current.resources.displayMetrics
-    val widthDp = metrics.widthPixels / metrics.density
     val offsetXdp = offsetXpx.value  / metrics.density
 
     Modifier
         .absoluteOffset(x = offsetXdp.dp)
         .draggable(draggableState, orientation = Orientation.Horizontal, onDragStopped = { acceleration ->
-            Log.i("DRAG", "$widthDp, $offsetXdp, ${offsetXpx.value}, $acceleration")
-            if (offsetXdp > widthDp * 0.5f) {
-                onSwipe()
+            if (offsetXdp > 50 && abs(acceleration) > 100) {
+                setClickable(false)
                 launch {
                     offsetXpx.animateTo(metrics.widthPixels.toFloat())
+                    onSwipe()
                 }
             }
             launch {
