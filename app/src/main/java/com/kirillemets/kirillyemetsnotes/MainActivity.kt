@@ -20,9 +20,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
+import com.google.firebase.auth.FirebaseAuth
 import com.kirillemets.kirillyemetsnotes.screens.edit.EditScreen
 import com.kirillemets.kirillyemetsnotes.screens.home.HomeScreen
 import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.screens.account.AccountScreen
+import com.kirillemets.kirillyemetsnotes.screens.account.SignOutDialog
 import com.kirillemets.kirillyemetsnotes.ui.components.*
 import com.kirillemets.kirillyemetsnotes.ui.theme.KirillYemetsNotesTheme
 import kotlinx.coroutines.CoroutineScope
@@ -38,6 +41,7 @@ object Routes {
     const val Home = "home"
     const val Settings = "settings"
     const val Account = "account"
+    const val AccountSignOutDialog = "account/signOutDialog"
     const val EditNote = "home/edit/{noteId}"
     fun editNote(id: Long) = "home/edit/$id"
 }
@@ -171,6 +175,9 @@ fun MyNavHost(navController: NavHostController, drawerState: DrawerState) {
             EditScreen(navController, it.arguments?.getLong("noteId")!!)
         }
         composable(Routes.Settings) { Text("Settings") }
-        composable(Routes.Account) { Text("Account") }
+        composable(Routes.Account) { AccountScreen(navController, drawerState) }
+        dialog("account/signOutDialog") {
+            SignOutDialog(navController)
+        }
     }
 }
