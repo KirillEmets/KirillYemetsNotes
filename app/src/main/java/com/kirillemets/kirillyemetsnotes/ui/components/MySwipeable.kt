@@ -17,7 +17,7 @@ import kotlin.math.abs
 import kotlin.math.max
 
 @SuppressLint("UnnecessaryComposedModifier")
-fun Modifier.mySwipeable(noteId: Long, onSwipe: () -> Unit, setClickable: (Boolean) -> Unit): Modifier = composed {
+fun Modifier.mySwipeable(noteId: String, onSwipe: () -> Unit, setClickable: (Boolean) -> Unit): Modifier = composed {
     val offsetXpx = remember(noteId) { Animatable(0f) }
     val scope = rememberCoroutineScope()
 

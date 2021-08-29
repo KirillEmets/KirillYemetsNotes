@@ -22,7 +22,7 @@ import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 
 @Composable
-fun EditScreen(navController: NavHostController, noteId: Long) {
+fun EditScreen(navController: NavHostController, noteId: String) {
     val context = LocalContext.current
     val database = remember { NoteDatabase.getInstance(context) }
     val editScreenViewModel: EditScreenViewModel =

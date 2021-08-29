@@ -5,13 +5,13 @@ import androidx.room.*
 
 @Entity
 data class Note(
-    @PrimaryKey(autoGenerate = true) val noteId: Long = 0,
+    @PrimaryKey val noteId: String,
     val text: String = "",
     val dateTime: Long = 0,
     val favorite: Boolean = false,
 )
 
-@Database(entities = [Note::class], version = 2)
+@Database(entities = [Note::class], version = 1)
 abstract class NoteDatabase : RoomDatabase() {
     companion object {
         private var Instance: NoteDatabase? = null

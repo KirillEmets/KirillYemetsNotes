@@ -8,14 +8,17 @@ interface NoteDao {
     @Query("SELECT * FROM note ORDER BY dateTime DESC")
     fun getAll(): Flow<List<Note>>
 
+    @Query("SELECT * FROM note ORDER BY dateTime DESC")
+    suspend fun getAllSuspend(): List<Note>
+
     @Query("SELECT * FROM note WHERE noteId = :noteId")
-    suspend fun get(noteId: Long): Note
+    suspend fun get(noteId: String): Note
 
     @Query("DELETE FROM note WHERE noteId = :noteId")
-    fun deleteById(noteId: Long)
+    fun deleteById(noteId: String)
 
     @Insert
-    suspend fun insert(note: Note): Long
+    suspend fun insert(note: Note)
 
     @Update
     suspend fun update(note: Note)
