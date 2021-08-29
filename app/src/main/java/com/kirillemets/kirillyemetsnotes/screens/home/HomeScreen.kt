@@ -15,16 +15,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.firestore.FirebaseFirestore
 import com.kirillemets.kirillyemetsnotes.Routes
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
 import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
 import com.kirillemets.kirillyemetsnotes.database.Note
 import com.kirillemets.kirillyemetsnotes.dateTimeToString
+import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.network.remotedb.NotesRepository
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 import com.kirillemets.kirillyemetsnotes.ui.components.mySwipeable
 import kotlinx.coroutines.*
-import org.joda.time.DateTime
 import org.joda.time.LocalDateTime
 
 
@@ -34,10 +36,20 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
     val context = LocalContext.current
     val database = remember { NoteDatabase.getInstance(context) }
 
+    val authViewModel: AuthViewModel = viewModel()
+    val user by authViewModel.user.collectAsState(initial = null)
+
+    val firebaseNotesRepository = remember(user) {
+        NotesRepository(user?.uid, FirebaseFirestore.getInstance())
+    }
+
     val today = remember { LocalDateTime() }
 
+    
     val homeScreenViewModel: HomeScreenViewModel =
-        viewModel(factory = HomeScreenViewModelFactory(database = database))
+        viewModel(factory = HomeScreenViewModelFactory(database = database, firebaseNotesRepository))
+
+
     val notes by homeScreenViewModel.allNotes.collectAsState(initial = listOf())
     val scaffoldState = rememberScaffoldState()
 
@@ -51,14 +63,7 @@ fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
         },
         floatingActionButton = {
             AddNoteFloatingButton {
-                scope.launch {
-                    var id: Long
-                    val millis = DateTime().millis
-                    withContext(Dispatchers.IO) {
-                        id = database.notesDao().insert(Note(dateTime = millis))
-                    }
-                    navController.navigate(Routes.editNote(id))
-                }
+                navController.navigate(Routes.editNote("new"))
             }
         },
         scaffoldState = scaffoldState) {
@@ -101,7 +106,7 @@ fun AddNoteFloatingButton(onClick: () -> Unit) {
 fun NoteCardList(
     notes: List<Note>,
     today: LocalDateTime,
-    onClick: (Long) -> Unit,
+    onClick: (String) -> Unit,
     onSwipe: (Note) -> Unit
 ) {
     LazyColumn(Modifier.padding(8.dp)) {
@@ -131,13 +136,13 @@ fun NoteCard(
     onSwipe: () -> Unit,
     onClick: (() -> Unit),
 ) {
-    var clickable by remember { mutableStateOf(true) }
+    var clickable by remember(note) { mutableStateOf(true) }
     Card(
         Modifier
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .fillMaxWidth()
             .clickable(onClick = onClick, enabled = clickable)
-            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe, setClickable = {clickable = it}),
+            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe, setClickable = { clickable = it }),
         shape = RoundedCornerShape(4.dp), elevation = 4.dp
     ) {
         Column {
