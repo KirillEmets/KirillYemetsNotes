@@ -1,4 +1,4 @@
-package com.kirillemets.kirillyemetsnotes.database
+package com.kirillemets.kirillyemetsnotes.model.database
 
 import android.content.Context
 import androidx.room.*

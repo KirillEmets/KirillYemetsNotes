@@ -1,17 +1,13 @@
-package com.kirillemets.kirillyemetsnotes.network.auth
+package com.kirillemets.kirillyemetsnotes.model.network.auth
 
 import android.app.Activity.RESULT_OK
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.kirillemets.kirillyemetsnotes.User
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
     private val firebaseUser: MutableStateFlow<FirebaseUser?> = MutableStateFlow(null)
@@ -19,11 +15,14 @@ class AuthViewModel : ViewModel() {
         emit(
             fbUser?.let {
                 User(
-                    name = fbUser.displayName ?: ""
+                    name = fbUser.displayName ?: "",
+                    uid = fbUser.uid
                 )
             }
         )
     }
+    val onSignIn: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     private val auth = Firebase.auth
 
     init {
@@ -31,8 +30,10 @@ class AuthViewModel : ViewModel() {
     }
 
     fun onSignIn(result: FirebaseAuthUIAuthenticationResult) {
-        // Does nothing
-        result.resultCode
+        if(result.resultCode == RESULT_OK) {
+            onSignIn.value = true
+        }
+
     }
 
     fun signOut() {

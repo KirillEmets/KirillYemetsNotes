@@ -1,4 +1,4 @@
-package com.kirillemets.kirillyemetsnotes.database
+package com.kirillemets.kirillyemetsnotes.model.database
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
