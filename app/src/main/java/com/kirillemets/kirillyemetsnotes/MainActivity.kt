@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,10 +21,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.google.firebase.auth.FirebaseAuth
+import com.kirillemets.kirillyemetsnotes.model.SyncViewModel
+import com.kirillemets.kirillyemetsnotes.model.SyncViewModelFactory
 import com.kirillemets.kirillyemetsnotes.screens.edit.EditScreen
 import com.kirillemets.kirillyemetsnotes.screens.home.HomeScreen
-import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.model.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.model.network.auth.User
+import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import com.kirillemets.kirillyemetsnotes.screens.account.AccountScreen
 import com.kirillemets.kirillyemetsnotes.screens.account.SignOutDialog
 import com.kirillemets.kirillyemetsnotes.ui.components.*
@@ -43,10 +47,8 @@ object Routes {
     const val Account = "account"
     const val AccountSignOutDialog = "account/signOutDialog"
     const val EditNote = "home/edit/{noteId}"
-    fun editNote(id: Long) = "home/edit/$id"
+    fun editNote(id: String) = "home/edit/$id"
 }
-
-class User(val name: String)
 
 @Composable
 fun UserCard(user: User?, onClick: () -> Unit) {
@@ -86,6 +88,19 @@ class MainActivity : ComponentActivity() {
                         authViewModel.onSignIn(res)
                     })
 
+                val noteRepository = remember {
+                    NoteRepository(context = this)
+                }
+
+                val syncViewModel: SyncViewModel = viewModel(factory = remember {
+                    SyncViewModelFactory(noteRepository)
+                })
+
+
+                LaunchedEffect(key1 = user) {
+                    if(user != null)
+                        syncViewModel.startSynchronization()
+                }
 
                 ModalDrawer(
                     gesturesEnabled = drawerState.isOpen,
@@ -170,11 +185,19 @@ fun MyNavHost(navController: NavHostController, drawerState: DrawerState) {
         }
         composable(
             Routes.EditNote,
-            arguments = listOf(navArgument("noteId") { type = NavType.LongType })
+            arguments = listOf(navArgument("noteId") { type = NavType.StringType })
         ) {
-            EditScreen(navController, it.arguments?.getLong("noteId")!!)
+            EditScreen(navController, it.arguments?.getString("noteId")!!)
         }
-        composable(Routes.Settings) { Text("Settings") }
+        composable(Routes.Settings) {
+            val scope = rememberCoroutineScope()
+
+            MyTopAppBar(params = ScreenParameters.Settings) {
+                scope.launch {
+                    changeDrawerState(drawerState)
+                }
+            }
+        }
         composable(Routes.Account) { AccountScreen(navController, drawerState) }
         dialog("account/signOutDialog") {
             SignOutDialog(navController)

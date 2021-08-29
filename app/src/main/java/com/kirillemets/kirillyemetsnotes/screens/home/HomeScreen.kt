@@ -15,14 +15,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.google.firebase.firestore.FirebaseFirestore
 import com.kirillemets.kirillyemetsnotes.Routes
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
-import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
-import com.kirillemets.kirillyemetsnotes.database.Note
+import com.kirillemets.kirillyemetsnotes.model.database.Note
 import com.kirillemets.kirillyemetsnotes.dateTimeToString
-import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
-import com.kirillemets.kirillyemetsnotes.network.remotedb.NotesRepository
+import com.kirillemets.kirillyemetsnotes.model.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 import com.kirillemets.kirillyemetsnotes.ui.components.mySwipeable
@@ -34,21 +32,19 @@ import org.joda.time.LocalDateTime
 fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val database = remember { NoteDatabase.getInstance(context) }
 
     val authViewModel: AuthViewModel = viewModel()
     val user by authViewModel.user.collectAsState(initial = null)
 
-    val firebaseNotesRepository = remember(user) {
-        NotesRepository(user?.uid, FirebaseFirestore.getInstance())
+    val noteRepository = remember(user) {
+        NoteRepository(context)
     }
 
+    val factory = remember { HomeScreenViewModelFactory(noteRepository = noteRepository) }
     val today = remember { LocalDateTime() }
 
-    
     val homeScreenViewModel: HomeScreenViewModel =
-        viewModel(factory = HomeScreenViewModelFactory(database = database, firebaseNotesRepository))
-
+        viewModel(factory = factory)
 
     val notes by homeScreenViewModel.allNotes.collectAsState(initial = listOf())
     val scaffoldState = rememberScaffoldState()

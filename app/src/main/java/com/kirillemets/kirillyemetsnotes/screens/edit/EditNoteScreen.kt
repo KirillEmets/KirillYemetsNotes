@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
+import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import com.kirillemets.kirillyemetsnotes.ui.components.MyFloatingActionButton
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
@@ -24,9 +24,10 @@ import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 @Composable
 fun EditScreen(navController: NavHostController, noteId: String) {
     val context = LocalContext.current
-    val database = remember { NoteDatabase.getInstance(context) }
+    val repository = remember {NoteRepository(context = context)}
+
     val editScreenViewModel: EditScreenViewModel =
-        viewModel(factory = EditScreenViewModelFactory(noteId, database))
+        viewModel(factory = EditScreenViewModelFactory(noteId, repository))
 
     val text by editScreenViewModel.text
     val scrollableState = rememberScrollableState(consumeScrollDelta = { it })

@@ -2,15 +2,11 @@ package com.kirillemets.kirillyemetsnotes.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.kirillemets.kirillyemetsnotes.database.Note
-import com.kirillemets.kirillyemetsnotes.database.NoteDatabase
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.kirillemets.kirillyemetsnotes.model.database.Note
+import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 
-class HomeScreenViewModel(database: NoteDatabase) : ViewModel() {
-    private val notesDao = database.notesDao()
-    val allNotes = notesDao.getAll()
+class HomeScreenViewModel(private val noteRepository: NoteRepository) : ViewModel() {
+    val allNotes = noteRepository.getAsFlow()
 
     fun onNoteClick() {
 
@@ -21,23 +17,19 @@ class HomeScreenViewModel(database: NoteDatabase) : ViewModel() {
     }
 
     private fun deleteNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDao.delete(note)
-        }
+        noteRepository.delete(note)
     }
 
     fun restoreNote(note: Note) {
-        viewModelScope.launch(Dispatchers.IO) {
-            notesDao.insert(note)
-        }
+        noteRepository.insert(note)
     }
 }
 
 @Suppress("UNCHECKED_CAST")
-class HomeScreenViewModelFactory(private val database: NoteDatabase) : ViewModelProvider.Factory {
+class HomeScreenViewModelFactory(private val noteRepository: NoteRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeScreenViewModel::class.java)) {
-            return HomeScreenViewModel(database = database) as T
+            return HomeScreenViewModel(noteRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
