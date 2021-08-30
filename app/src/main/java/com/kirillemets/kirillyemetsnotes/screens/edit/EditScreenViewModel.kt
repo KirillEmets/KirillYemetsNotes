@@ -6,12 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.kirillemets.kirillyemetsnotes.model.database.Note
+import com.kirillemets.kirillyemetsnotes.model.Note
 import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import kotlinx.coroutines.*
 import org.joda.time.DateTime
-import kotlin.random.Random
-import kotlin.random.nextUInt
+import java.util.*
 
 class EditScreenViewModel(noteId: String, private val noteRepository: NoteRepository) :
     ViewModel() {
@@ -35,7 +34,7 @@ class EditScreenViewModel(noteId: String, private val noteRepository: NoteReposi
         val millis = DateTime().millis
 
         if (note == null) {
-            val newId = "id_${Random.nextUInt()}"
+            val newId = UUID.randomUUID().toString()
             val newNote = Note(
                 noteId = newId,
                 text = _text.value,
