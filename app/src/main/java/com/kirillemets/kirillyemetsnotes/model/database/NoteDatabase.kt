@@ -2,10 +2,13 @@ package com.kirillemets.kirillyemetsnotes.model.database
 
 import android.content.Context
 import androidx.room.*
+import com.google.firebase.firestore.DocumentId
 
 @Entity
 data class Note(
-    @PrimaryKey val noteId: String,
+    @DocumentId
+    @PrimaryKey
+    val noteId: String,
     val text: String = "",
     val dateTime: Long = 0,
     val favorite: Boolean = false,
