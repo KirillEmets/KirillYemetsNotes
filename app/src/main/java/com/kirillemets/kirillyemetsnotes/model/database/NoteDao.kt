@@ -1,6 +1,7 @@
 package com.kirillemets.kirillyemetsnotes.model.database
 
 import androidx.room.*
+import com.kirillemets.kirillyemetsnotes.model.Note
 import kotlinx.coroutines.flow.Flow
 
 @Dao

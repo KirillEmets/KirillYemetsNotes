@@ -2,7 +2,7 @@ package com.kirillemets.kirillyemetsnotes.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.kirillemets.kirillyemetsnotes.model.database.Note
+import com.kirillemets.kirillyemetsnotes.model.Note
 import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 
 class HomeScreenViewModel(private val noteRepository: NoteRepository) : ViewModel() {

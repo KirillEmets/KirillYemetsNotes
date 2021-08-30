@@ -2,17 +2,7 @@ package com.kirillemets.kirillyemetsnotes.model.database
 
 import android.content.Context
 import androidx.room.*
-import com.google.firebase.firestore.DocumentId
-
-@Entity
-data class Note(
-    @DocumentId
-    @PrimaryKey
-    val noteId: String,
-    val text: String = "",
-    val dateTime: Long = 0,
-    val favorite: Boolean = false,
-)
+import com.kirillemets.kirillyemetsnotes.model.Note
 
 @Database(entities = [Note::class], version = 1)
 abstract class NoteDatabase : RoomDatabase() {

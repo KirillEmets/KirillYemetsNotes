@@ -7,7 +7,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.kirillemets.kirillyemetsnotes.Routes
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
-import com.kirillemets.kirillyemetsnotes.network.auth.AuthViewModel
+import com.kirillemets.kirillyemetsnotes.model.network.auth.AuthViewModel
 import com.kirillemets.kirillyemetsnotes.ui.components.*
 import kotlinx.coroutines.launch
 
