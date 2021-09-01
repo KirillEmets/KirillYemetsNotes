@@ -8,7 +8,7 @@ import com.google.firebase.firestore.DocumentId
 data class Note(
     @DocumentId
     @PrimaryKey
-    val noteId: String,
+    val noteId: String = "",
     val text: String = "",
     val dateTime: Long = 0,
     val favorite: Boolean = false,
