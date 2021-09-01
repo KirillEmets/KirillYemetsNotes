@@ -1,44 +1,34 @@
 package com.kirillemets.kirillyemetsnotes.model.network.remotedb
 
-import android.content.Context
-import com.kirillemets.kirillyemetsnotes.model.database.Note
-import com.kirillemets.kirillyemetsnotes.model.database.NoteDatabase
+import com.kirillemets.kirillyemetsnotes.model.Note
 import kotlinx.coroutines.*
 
-class NoteRepository(context: Context) {
-//    private val job = Job()
+class NoteRepository {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val room = NoteDatabase.getInstance(context).notesDao()
-    suspend fun getAll(): List<Note> {
-        return withContext(coroutineScope.coroutineContext) {
-            room.getAllSuspend()
-        }
-    }
-
-    fun getAsFlow() = room.getAll()
+    fun getAsFlow() = FirestoreNotesService.getAllAsFlow()
 
     fun insert(note: Note) {
         coroutineScope.launch {
-            room.insert(note)
+            FirestoreNotesService.insert(note)
         }
     }
 
     fun update(note: Note) {
         coroutineScope.launch {
-            room.update(note)
+            FirestoreNotesService.update(note)
         }
     }
 
     fun delete(note: Note) {
         coroutineScope.launch {
-            room.delete(note)
+            FirestoreNotesService.delete(note)
         }
     }
 
     suspend fun get(noteId: String): Note {
         return withContext(coroutineScope.coroutineContext) {
-            room.get(noteId)
+            FirestoreNotesService.get(noteId)
         }
     }
 }
