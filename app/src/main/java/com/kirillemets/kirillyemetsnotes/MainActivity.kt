@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -21,13 +20,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
-import com.kirillemets.kirillyemetsnotes.model.SyncViewModel
-import com.kirillemets.kirillyemetsnotes.model.SyncViewModelFactory
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.kirillemets.kirillyemetsnotes.screens.edit.EditScreen
 import com.kirillemets.kirillyemetsnotes.screens.home.HomeScreen
 import com.kirillemets.kirillyemetsnotes.model.network.auth.AuthViewModel
 import com.kirillemets.kirillyemetsnotes.model.network.auth.User
-import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import com.kirillemets.kirillyemetsnotes.screens.account.AccountScreen
 import com.kirillemets.kirillyemetsnotes.screens.account.SignOutDialog
 import com.kirillemets.kirillyemetsnotes.ui.components.*
@@ -52,19 +50,20 @@ object Routes {
 
 @Composable
 fun UserCard(user: User?, onClick: () -> Unit) {
+    val shouldSignIn = user == null || user.isAnon
     Row(
         Modifier
-            .clickable(onClick = onClick, enabled = user == null)
+            .clickable(onClick = onClick, enabled = shouldSignIn)
             .padding(16.dp)
             .fillMaxWidth()
     ) {
-        if (user == null) {
-            Column() {
+        if (shouldSignIn) {
+            Column {
                 Text("You are note signed in", fontWeight = FontWeight.Bold)
                 Text("Tap here to sign in / sign up")
             }
         } else
-            Text("Hello, ${user.name}")
+            Text("Hello, ${user!!.name}")
     }
 }
 
@@ -79,28 +78,16 @@ class MainActivity : ComponentActivity() {
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute: String = navBackStackEntry?.destination?.route ?: "default"
+                navController.setViewModelStore(this.viewModelStore)
 
                 val authViewModel: AuthViewModel = viewModel()
                 val user: User? by authViewModel.user.collectAsState(initial = null)
+
                 val launcher = rememberLauncherForActivityResult(
                     contract = FirebaseAuthUIActivityResultContract(),
-                    onResult = { res ->
-                        authViewModel.onSignIn(res)
-                    })
+                    onResult = { })
 
-                val noteRepository = remember {
-                    NoteRepository(context = this)
-                }
-
-                val syncViewModel: SyncViewModel = viewModel(factory = remember {
-                    SyncViewModelFactory(noteRepository)
-                })
-
-
-                LaunchedEffect(key1 = user) {
-                    if(user != null)
-                        syncViewModel.startSynchronization()
-                }
+                
 
                 ModalDrawer(
                     gesturesEnabled = drawerState.isOpen,
@@ -108,20 +95,23 @@ class MainActivity : ComponentActivity() {
                     drawerContent = {
                         Column {
                             UserCard(user = user) {
-                                if (user == null) {
-                                    val providers = arrayListOf(
-                                        AuthUI.IdpConfig.EmailBuilder().build())
+                                val providers = arrayListOf(
+                                    AuthUI.IdpConfig.EmailBuilder().build()
+                                )
 
-                                    val signInIntent = AuthUI.getInstance()
-                                        .createSignInIntentBuilder()
-                                        .setAvailableProviders(providers)
-                                        .build()
-                                    launcher.launch(signInIntent)
-                                }
+                                val signInIntent = AuthUI.getInstance()
+                                    .createSignInIntentBuilder()
+                                    .setAvailableProviders(providers)
+                                    .build()
+
+//                                Firebase.auth.signInWithEmailAndPassword("kirill.yemets@gmail.com", "123456")
+                                launcher.launch(signInIntent)
+
                             }
                             Divider()
                             drawerItems.forEach {
-                                if (it.route != Routes.Account || user != null)
+                                if (it.route == Routes.Account && user != null)
+                                    return@forEach
                                     DrawerItem(
                                         text = it.text,
                                         icon = it.icon,
@@ -144,7 +134,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         MyNavHost(
                             navController = navController,
-                            drawerState = drawerState
+                            drawerState = drawerState,
+                            authViewModel = authViewModel
                         )
                     }
 
@@ -152,9 +143,6 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
-
-fun startAuth() {
 }
 
 fun NavHostController.navigateCloseDrawer(
@@ -178,10 +166,10 @@ suspend fun changeDrawerState(drawerState: DrawerState) {
 }
 
 @Composable
-fun MyNavHost(navController: NavHostController, drawerState: DrawerState) {
+fun MyNavHost(navController: NavHostController, drawerState: DrawerState, authViewModel: AuthViewModel) {
     NavHost(navController = navController, startDestination = Routes.Home) {
         composable(Routes.Home) {
-            HomeScreen(navController, drawerState)
+            HomeScreen(navController, authViewModel, drawerState)
         }
         composable(
             Routes.EditNote,
@@ -200,7 +188,7 @@ fun MyNavHost(navController: NavHostController, drawerState: DrawerState) {
         }
         composable(Routes.Account) { AccountScreen(navController, drawerState) }
         dialog("account/signOutDialog") {
-            SignOutDialog(navController)
+            SignOutDialog(navController, authViewModel)
         }
     }
 }
