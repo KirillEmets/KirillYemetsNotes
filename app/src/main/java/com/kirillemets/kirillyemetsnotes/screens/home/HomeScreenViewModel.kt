@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.kirillemets.kirillyemetsnotes.model.Note
 import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
+import kotlinx.coroutines.flow.transform
 
 class HomeScreenViewModel(private val noteRepository: NoteRepository) : ViewModel() {
-    val allNotes = noteRepository.getAsFlow()
+    private val allNotes = noteRepository.getAsFlow()
+    val shownNotes = allNotes.transform { list -> emit(list.sortedByDescending { it.dateTime }) }
 
     fun onNoteClick() {
 
