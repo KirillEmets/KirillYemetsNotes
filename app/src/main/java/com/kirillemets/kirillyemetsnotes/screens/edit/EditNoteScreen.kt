@@ -23,8 +23,7 @@ import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 
 @Composable
 fun EditScreen(navController: NavHostController, noteId: String) {
-    val context = LocalContext.current
-    val repository = remember {NoteRepository(context = context)}
+    val repository = remember {NoteRepository() }
 
     val editScreenViewModel: EditScreenViewModel =
         viewModel(factory = EditScreenViewModelFactory(noteId, repository))

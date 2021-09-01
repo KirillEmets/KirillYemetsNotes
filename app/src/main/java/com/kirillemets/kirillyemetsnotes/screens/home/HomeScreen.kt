@@ -29,24 +29,24 @@ import org.joda.time.LocalDateTime
 
 
 @Composable
-fun HomeScreen(navController: NavHostController, drawerState: DrawerState) {
+fun HomeScreen(
+    navController: NavHostController,
+    authViewModel: AuthViewModel,
+    drawerState: DrawerState
+) {
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    val authViewModel: AuthViewModel = viewModel()
     val user by authViewModel.user.collectAsState(initial = null)
 
-    val noteRepository = remember(user) {
-        NoteRepository(context)
+    val factory = remember(user) {
+        HomeScreenViewModelFactory(noteRepository = NoteRepository())
     }
 
-    val factory = remember { HomeScreenViewModelFactory(noteRepository = noteRepository) }
     val today = remember { LocalDateTime() }
 
     val homeScreenViewModel: HomeScreenViewModel =
-        viewModel(factory = factory)
+        viewModel(factory = factory, key = user?.uid)
 
-    val notes by homeScreenViewModel.allNotes.collectAsState(initial = listOf())
+    val notes by homeScreenViewModel.shownNotes.collectAsState(initial = listOf())
     val scaffoldState = rememberScaffoldState()
 
     Scaffold(

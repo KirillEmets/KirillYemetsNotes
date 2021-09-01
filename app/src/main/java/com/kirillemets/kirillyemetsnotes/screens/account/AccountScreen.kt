@@ -50,9 +50,7 @@ fun AccountScreen(navController: NavHostController, drawerState: DrawerState) {
 }
 
 @Composable
-fun SignOutDialog(navController: NavHostController) {
-    val authViewModel: AuthViewModel = viewModel()
-
+fun SignOutDialog(navController: NavHostController, authViewModel: AuthViewModel) {
     MyDialog(
         navController = navController,
         title = "Sign Out",
