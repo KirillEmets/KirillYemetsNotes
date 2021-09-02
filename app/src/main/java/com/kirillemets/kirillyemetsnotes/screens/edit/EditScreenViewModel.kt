@@ -16,6 +16,10 @@ class EditScreenViewModel(noteId: String, private val noteRepository: NoteReposi
     ViewModel() {
     private val _text: MutableState<String> = mutableStateOf("")
     val text: State<String> = _text
+
+    private val _isFavorite: MutableState<Boolean> = mutableStateOf(false)
+    val isFavorite: State<Boolean> = _isFavorite
+
     var note: Note? = null
 
     init {
@@ -23,11 +27,16 @@ class EditScreenViewModel(noteId: String, private val noteRepository: NoteReposi
             viewModelScope.launch {
                 note = noteRepository.get(noteId)
                 _text.value = note?.text ?: ""
+                _isFavorite.value = note?.favorite ?: false
             }
     }
 
     fun onTextChange(newText: String) {
         _text.value = newText
+    }
+
+    fun changeFavorite() {
+        _isFavorite.value = !_isFavorite.value
     }
 
     private fun saveChanges() {
@@ -37,14 +46,15 @@ class EditScreenViewModel(noteId: String, private val noteRepository: NoteReposi
             val newId = UUID.randomUUID().toString()
             val newNote = Note(
                 noteId = newId,
-                text = _text.value,
-                dateTime = millis
+                text = text.value,
+                dateTime = millis,
+                favorite = isFavorite.value
             )
             noteRepository.insert(newNote)
             return
         }
 
-        val newNote = note!!.copy(text = _text.value, dateTime = millis)
+        val newNote = note!!.copy(text = text.value, dateTime = millis, favorite = isFavorite.value)
         noteRepository.update(newNote)
 
     }

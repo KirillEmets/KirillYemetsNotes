@@ -1,5 +1,6 @@
 package com.kirillemets.kirillyemetsnotes.screens.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,9 +9,9 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,7 +27,6 @@ import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
 import com.kirillemets.kirillyemetsnotes.ui.components.mySwipeable
 import kotlinx.coroutines.*
 import org.joda.time.LocalDateTime
-
 
 @Composable
 fun HomeScreen(
@@ -62,8 +62,8 @@ fun HomeScreen(
                 navController.navigate(Routes.editNote("new"))
             }
         },
-        scaffoldState = scaffoldState) {
-
+        scaffoldState = scaffoldState
+    ) {
         Column {
             NoteCardList(
                 notes = notes,
@@ -77,9 +77,10 @@ fun HomeScreen(
                     scope.launch {
                         val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
                             message = "Note deleted",
-                            actionLabel = "Undo")
+                            actionLabel = "Undo"
+                        )
 
-                        when(snackbarResult) {
+                        when (snackbarResult) {
                             SnackbarResult.Dismissed -> Unit
                             SnackbarResult.ActionPerformed -> homeScreenViewModel.restoreNote(note)
                         }
@@ -137,11 +138,15 @@ fun NoteCard(
         Modifier
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .clickable(onClick = onClick, enabled = clickable)
-            .mySwipeable(noteId = note.noteId, onSwipe = onSwipe, setClickable = { clickable = it }),
+            .mySwipeable(
+                noteId = note.noteId,
+                onSwipe = onSwipe,
+                setClickable = { clickable = it }),
         shape = RoundedCornerShape(4.dp), elevation = 4.dp
     ) {
-        Column {
+        Column(modifier = Modifier) {
             Text(
                 text = dateText,
                 fontSize = 14.sp,
@@ -153,9 +158,18 @@ fun NoteCard(
                 fontSize = 16.sp,
                 maxLines = 5,
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(8.dp)
             )
         }
+
+        if (note.favorite)
+            Box(contentAlignment = Alignment.CenterEnd) {
+                Box(
+                    modifier = Modifier
+                        .background(color = Color.Red)
+                        .fillMaxHeight()
+                        .width(4.dp)
+                )
+            }
     }
 }
