@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.transform
 
 class HomeScreenViewModel(private val noteRepository: NoteRepository) : ViewModel() {
     private val allNotes = noteRepository.getAsFlow()
-    val shownNotes = allNotes.transform { list -> emit(list.sortedByDescending { it.dateTime }) }
+    val shownNotes = allNotes.transform { list -> emit(list.sortedByDescending { it.dateTime }.sortedByDescending { it.favorite }) }
 
     fun onNoteClick() {
 
