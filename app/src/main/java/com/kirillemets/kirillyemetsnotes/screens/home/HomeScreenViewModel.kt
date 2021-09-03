@@ -15,7 +15,8 @@ class HomeScreenViewModel(private val noteRepository: NoteRepository) : ViewMode
     }
 
     fun onNoteSwiped(note: Note) {
-        deleteNote(note)
+        if(!note.favorite)
+            deleteNote(note)
     }
 
     private fun deleteNote(note: Note) {
