@@ -45,7 +45,6 @@ fun EditScreen(navController: NavHostController, noteId: String) {
         topBar = {
             MyTopAppBar(params = ScreenParameters.HomeEdit, actions = {
                 IconButton(
-                    modifier = Modifier.padding(8.dp),
                     onClick = {
                         editScreenViewModel.changeFavorite()
                     }) {
