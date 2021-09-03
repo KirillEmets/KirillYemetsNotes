@@ -24,7 +24,7 @@ import com.kirillemets.kirillyemetsnotes.model.network.auth.AuthViewModel
 import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
 import com.kirillemets.kirillyemetsnotes.ui.components.MyTopAppBar
 import com.kirillemets.kirillyemetsnotes.ui.components.ScreenParameters
-import com.kirillemets.kirillyemetsnotes.ui.components.mySwipeable
+import com.kirillemets.kirillyemetsnotes.ui.components.clickableAndSwipeable
 import kotlinx.coroutines.*
 import org.joda.time.LocalDateTime
 
@@ -133,17 +133,16 @@ fun NoteCard(
     onSwipe: () -> Unit,
     onClick: (() -> Unit),
 ) {
-    var clickable by remember(note) { mutableStateOf(true) }
     Card(
         Modifier
             .padding(vertical = 8.dp, horizontal = 8.dp)
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
-            .clickable(onClick = onClick, enabled = clickable)
-            .mySwipeable(
+            .clickableAndSwipeable(
                 noteId = note.noteId,
+                dragEnabled = !note.favorite,
                 onSwipe = onSwipe,
-                setClickable = { clickable = it }),
+                onClick = onClick),
         shape = RoundedCornerShape(4.dp), elevation = 4.dp
     ) {
         Column(modifier = Modifier) {
