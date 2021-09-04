@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                             }
                             Divider()
                             drawerItems.forEach {
-                                if (it.route == Routes.Account && user != null)
+                                if (it.route == Routes.Account && (user == null || user!!.isAnon))
                                     return@forEach
                                     DrawerItem(
                                         text = it.text,
