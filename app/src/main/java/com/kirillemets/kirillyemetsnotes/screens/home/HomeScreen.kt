@@ -139,7 +139,7 @@ fun NoteCardList(
 ) {
     LazyColumn(Modifier.padding(8.dp)) {
         item {
-            Text(text = "Your notes:", Modifier.padding(16.dp))
+            Text(text = "Your notes:", Modifier.padding(16.dp), color = MaterialTheme.colors.onBackground)
         }
         items(notes.size) { pos ->
             notes[pos].let { note ->
@@ -197,7 +197,7 @@ fun NoteCard(
             Box(contentAlignment = Alignment.CenterEnd) {
                 Box(
                     modifier = Modifier
-                        .background(color = Color.Red)
+                        .background(color = MaterialTheme.colors.primary)
                         .fillMaxHeight()
                         .width(4.dp)
                 )

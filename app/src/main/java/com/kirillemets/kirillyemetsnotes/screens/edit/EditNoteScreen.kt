@@ -6,7 +6,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
@@ -16,7 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.kirillemets.kirillyemetsnotes.model.network.remotedb.NoteRepository
@@ -67,7 +67,8 @@ fun EditScreen(navController: NavHostController, noteId: String) {
             value = text, onValueChange = { editScreenViewModel.onTextChange(it) },
             Modifier
                 .fillMaxSize()
-                .background(color = MaterialTheme.colors.background)
+                .background(color = MaterialTheme.colors.background),
+            textStyle = TextStyle(color = MaterialTheme.colors.onBackground, fontSize = 16.sp)
         )
     }
 }
