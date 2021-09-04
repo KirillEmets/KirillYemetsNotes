@@ -35,7 +35,6 @@ import kotlinx.coroutines.launch
 
 val drawerItems = listOf(
     DrawerMenuItem("Home page", Icons.Filled.Home, Routes.Home),
-    DrawerMenuItem("Settings", Icons.Filled.Settings, Routes.Settings),
     DrawerMenuItem("Account", Icons.Filled.AccountCircle, Routes.Account),
 )
 
