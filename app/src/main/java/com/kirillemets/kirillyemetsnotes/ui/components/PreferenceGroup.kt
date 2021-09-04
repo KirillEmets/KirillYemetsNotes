@@ -14,11 +14,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class PreferenceItemData(
-    val text: String,
-    val clickEnabled: Boolean = true,
-    val onClick: () -> Unit,
-)
+class PreferenceItemData {
+    var text: String = ""
+    var clickEnabled: Boolean = true
+    var onClick: () -> Unit = {}
+}
+
+
+class PreferenceGroupContext {
+    private val _preferences = mutableListOf<PreferenceItemData>()
+    val preferences: List<PreferenceItemData>
+        get() = _preferences
+
+    fun Preference(values: PreferenceItemData.() -> Unit) {
+        val data = PreferenceItemData()
+        values(data)
+        _preferences.add(data)
+    }
+}
+
+@Composable
+fun PreferenceGroup(title: String, content: PreferenceGroupContext.() -> Unit) {
+    val context = PreferenceGroupContext()
+    content(context)
+    PreferenceGroup(title = title, items = context.preferences)
+}
 
 @Composable
 fun PreferenceGroup(title: String, items: List<PreferenceItemData>) {

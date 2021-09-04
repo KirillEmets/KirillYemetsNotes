@@ -3,7 +3,6 @@ package com.kirillemets.kirillyemetsnotes.screens.account
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.kirillemets.kirillyemetsnotes.Routes
 import com.kirillemets.kirillyemetsnotes.changeDrawerState
@@ -27,24 +26,15 @@ fun AccountScreen(navController: NavHostController, drawerState: DrawerState) {
         },
         scaffoldState = scaffoldState
     ) {
-        val syncGroup: List<PreferenceItemData> = listOf(
-            PreferenceItemData("Load from cloud") {
-            },
-            PreferenceItemData("Load to cloud") {
-
-            }
-        )
-
-        val accountGroup: List<PreferenceItemData> = listOf(
-            PreferenceItemData("Sign Out") {
-                navController.navigate(Routes.AccountSignOutDialog)
-            }
-        )
-
         Column {
-            PreferenceGroup(title = "Synchronisation", items = syncGroup)
-            Divider()
-            PreferenceGroup(title = "Account", items = accountGroup)
+            PreferenceGroup(title = "Account") {
+                Preference {
+                    text = "Sign Out"
+                    onClick = {
+                        navController.navigate(Routes.AccountSignOutDialog)
+                    }
+                }
+            }
         }
     }
 }
